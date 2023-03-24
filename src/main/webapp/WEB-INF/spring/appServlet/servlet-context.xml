@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+	xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+		xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<!--현재파일은 Spring MVC 설정 파일인 servlet-context.xml  -->
+
+
+	<!-- annotation을 사용하기위해 작성 -->
+	<annotation-driven />
+
+	<!--<resources>는 Spring MVC에서 정적 리소스(이미지, CSS, JavaScript 등)에 대한 처리를 담당하는 태그 -->
+	<!-- <resources> 태그의 mapping 속성은 웹 브라우저에서 요청하는 URL 패턴을 지정하는 역할을 합니다. 
+	location 속성은 해당 URL 패턴에 대한 정적 리소스를 저장하는 위치를 지정하는 역할을 합니다. -->
+	<!-- /resources/** 패턴으로 요청되는 정적 리소스를 webapp/resources/ 디렉토리에서 찾도록 설정하 -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+
+    <beans:bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+		<beans:property name="definitions">
+			<beans:list>
+				<beans:value>classpath:tiles/*.xml</beans:value>
+			</beans:list>
+		</beans:property>
+		<beans:property name="preparerFactoryClass"
+			          value="org.springframework.web.servlet.view.tiles2.SpringBeanPreparerFactory" />
+	</beans:bean>
+	
+	<beans:bean id="viewResolver"
+		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<beans:property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView" />
+	</beans:bean>
+	
+	
+	
+    <context:component-scan	base-package="com.myspring.pro30" />
+    
+   <mvc:interceptors>
+    	<mvc:interceptor>
+	      <mvc:mapping path="/*/*.do"/>
+	   <beans:bean class="com.myspring.pro30.common.interceptor.ViewNamelnterceptor" />
+	</mvc:interceptor>
+</mvc:interceptors>
+
+	<!-- 멀티파트 리졸버 파일업로드하기위한 bean-->
+	<beans:bean id="multipartResolver" 	class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<beans:property name="maxUploadSize" value="52428800" />
+		<beans:property name="maxInMemorySize" value="52428800" />
+		<beans:property name="defaultEncoding" value="utf-8" />
+	</beans:bean>
+	
+</beans:beans>
