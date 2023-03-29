@@ -1,5 +1,6 @@
 package com.myspring.pro30.board.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
 import com.myspring.pro30.board.vo.ArticleVO;
+import com.myspring.pro30.board.vo.ImageVO;
 import com.myspring.pro30.member.vo.MemberVO;
 
 @Repository("boardDAO")
@@ -32,14 +34,34 @@ public class BoardDAOImpl implements BoardDAO{
 		return articleNO;
 	}
 
+
+	//다중 파일 업로드
+
+	@Override
+	public void insertNewImage(Map articleMap) throws DataAccessException {
+		List<ImageVO> imageFileList = (ArrayList)articleMap.get("imageFileList");
+		int articleNO = (Integer)articleMap.get("articleNO");
+		int imageFileNO = selectNewArticleNO();
+		for(ImageVO imageVO : imageFileList){
+			imageVO.setImageFileNO(++imageFileNO);
+			imageVO.setArticleNO(articleNO);
+		}
+		sqlSession.insert("mapper.board.insertNewImage",imageFileList);
+	}
+	
+	
+
 	private int selectNewArticleNO() throws DataAccessException {
 		return sqlSession.selectOne("mapper.board.selectNewArticleNO");
 	}
+	
 
 	@Override
 	public ArticleVO selectArticle(int articleNO) {
 		return sqlSession.selectOne("mapper.board.selectArticle", articleNO);
 	}
+	
+	
 	//수정하기 했을때
 	@Override
 	public void updateArticle(Map articleMap) throws DataAccessException {
@@ -52,4 +74,13 @@ public class BoardDAOImpl implements BoardDAO{
 		sqlSession.delete("mapper.board.deleteArticle", articleNO);
 		
 	}
+
+	@Override
+	public List selectImageFileList(int articleNO) throws DataAccessException {
+		List<ImageVO> imageFileList = null;
+		imageFileList = sqlSession.selectList("mapper.board.selectImageFileList",articleNO);
+		return imageFileList;
+	}
+
+
 }

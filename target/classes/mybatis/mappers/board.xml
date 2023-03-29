@@ -15,9 +15,10 @@
 		<result property="imageFileName" column="imageFileName" />
 	</resultMap>
 
-	<!-- <resultMap id="imgResult" type="imageVO"> <result property="imageFileNO" 
-		column="imageFileNO" /> <result property="articleNO" column="articleNO" /> 
-		<result property="imageFileName" column="imageFileName" /> </resultMap> -->
+	 <resultMap id="imgResult" type="imageVO"> 
+	 <result property="imageFileNO" column="imageFileNO" /> 
+	 <result property="articleNO" column="articleNO" /> 
+	<result property="imageFileName" column="imageFileName" /> </resultMap>
 
 	<select id="selectAllAreicleList" resultMap="articleResult">
     <![CDATA[
@@ -34,13 +35,15 @@
 			SELECT  nvl(max(articleNO), 0) + 1 from t_board		
 		]]>
 	</select>
-<!--단일이미지 추가  -->
-<insert id="insertNewArticle"  parameterType="java.util.Map">
+ 	
+
+<!-- <insert id="insertNewArticle"  parameterType="java.util.Map">
 		<![CDATA[
 			INSERT into t_board(articleNO,  title, content, imageFileName, id)
 			VALUES(#{articleNO},#{title},	#{content}, #{imageFileName},	#{id})
 		]]>      
-	</insert>
+	</insert> 
+	 -->
 	
 	<!--선택한 글 출력  -->
 	<select id="selectArticle" resultType="articleVO"   parameterType="int">
@@ -51,7 +54,7 @@
   </select>
   
   <!-- 글 수정하는 쿼리 -->
-  <update id="updateArticle"  parameterType="java.util.Map">
+   <update id="updateArticle"  parameterType="java.util.Map">
 			update t_board
 			set title=#{title},	 
 			content=#{content}
@@ -60,6 +63,7 @@
 			</if>
 			where articleNO=#{articleNO}
 	</update>
+	
 	
 	<!-- 글 삭제하는 쿼리 -->
 	<delete id="deleteArticle"  parameterType="int">
@@ -71,5 +75,31 @@
          CONNECT BY PRIOR  articleNO = parentNO )
     ]]>      
   </delete>
+	
+	<!--다중 이미지 추가 SQL문 -->   
+
+    <insert id="insertNewArticle"  parameterType="java.util.Map">
+    <![CDATA[
+      insert into t_board(articleNO, id, title, content, imageFileName)
+      values(#{articleNO}, #{id}, #{title}, #{content}, 0)
+    ]]>      
+  </insert>
+
+ 
+   <insert id="insertNewImage"  parameterType="java.util.Map">
+    <foreach item="item"  collection="list"   open="INSERT ALL" 
+                  separator=" " close="SELECT * FROM DUAL" >
+      INTO t_imageFile(imageFileNO, imageFileName, articleNO, regDate)
+      VALUES (#{item.imageFileNO}, #{item.imageFileName}, #{item.articleNO}, sysdate)
+    </foreach>
+  </insert>
+
+ <select  id="selectImageFileList" resultMap="imgResult" parameterType="int">
+    <![CDATA[
+      SELECT * from t_imageFile
+      where articleNO=#{articleNO}	
+    ]]>
+  </select> 
+ 
 	
 </mapper>
